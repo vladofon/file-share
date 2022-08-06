@@ -4,23 +4,27 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import com.training.fileshare.domain.User;
 import com.training.fileshare.repo.UserRepo;
 
 import lombok.AllArgsConstructor;
 
+@Service
 @AllArgsConstructor
 public class UserService implements UserDetailsService {
 
 	private final UserRepo userRepo;
+	private final PasswordEncoder passwordEncoder;
 
 	@Override
-	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		User user = userRepo.findByEmail(username);
+	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+		User user = userRepo.findByEmail(email);
 
 		if (user == null) {
-			throw new BadCredentialsException("User not found!");
+			throw new BadCredentialsException("User with email [" + email + "] not found!");
 		}
 
 		return user;
@@ -41,6 +45,7 @@ public class UserService implements UserDetailsService {
 			return false;
 		}
 
+		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		userRepo.save(user);
 
 		return true;

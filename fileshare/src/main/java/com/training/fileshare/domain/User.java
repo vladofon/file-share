@@ -3,7 +3,10 @@ package com.training.fileshare.domain;
 import java.util.Collection;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,12 +15,14 @@ import lombok.Data;
 
 @Data
 @Entity
+@Table(name = "usr")
 public class User implements UserDetails {
 
 	private static final long serialVersionUID = -4557600846739433283L;
 
 	@Id
-	private String id;
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private Long id;
 	private String email;
 	private String password;
 
