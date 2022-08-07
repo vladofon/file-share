@@ -1,11 +1,15 @@
 package com.training.fileshare.domain;
 
 import java.util.Collection;
+import java.util.List;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.springframework.security.core.GrantedAuthority;
@@ -25,6 +29,12 @@ public class User implements UserDetails {
 	private Long id;
 	private String email;
 	private String password;
+
+	@OneToMany(mappedBy = "author", fetch = FetchType.LAZY)
+	private List<TextFile> createdFiles;
+
+	@ManyToMany(mappedBy = "consumers", fetch = FetchType.LAZY)
+	private List<TextFile> recievedFiles;
 
 	@Override
 	public String getUsername() {
