@@ -23,26 +23,24 @@ public class FileManager {
 
 	public void saveOnDisk(MultipartFile file) throws IllegalStateException, IOException {
 
-		if (FilenameUtils.getExtension(file.getOriginalFilename()) != "txt") {
-			throw new IllegalArgumentException("Wrong file extention! Must be [.txt]");
+		String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+		if (!extension.equals("txt")) {
+			throw new IllegalArgumentException("Wrong file extention! Must be [.txt] | was: [" + extension + "]");
 		}
 
-		String path = request.getServletContext().getRealPath(uploadDir);
-
-		if (!new File(path).exists()) {
-			new File(path).mkdir();
+		if (!(new File(uploadDir).exists())) {
+			new File(uploadDir).mkdir();
 		}
 
 		String filename = file.getOriginalFilename();
-		String filePath = path + filename;
+		String filePath = uploadDir + filename;
 
 		File destination = new File(filePath);
 		file.transferTo(destination);
 	}
 
 	public File loadFormDisk(String filename) {
-		String path = request.getServletContext().getRealPath(uploadDir);
-		String filePath = path + filename;
+		String filePath = uploadDir + filename;
 
 		File file = new File(filePath);
 

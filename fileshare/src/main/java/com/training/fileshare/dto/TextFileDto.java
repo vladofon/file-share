@@ -1,6 +1,6 @@
 package com.training.fileshare.dto;
 
-import org.springframework.web.multipart.MultipartFile;
+import java.io.File;
 
 import lombok.Data;
 
@@ -8,5 +8,5 @@ import lombok.Data;
 public class TextFileDto {
 	private Long id;
 	private String authorName;
-	private MultipartFile file;
+	private File file;
 }

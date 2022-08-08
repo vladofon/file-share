@@ -1,7 +1,9 @@
 package com.training.fileshare.controller;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import java.io.IOException;
+
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,12 +21,14 @@ public class RegisterController {
 	private final UserService userService;
 
 	@PostMapping("/register")
-	public ResponseEntity<?> user(User user) {
+	public void user(HttpServletResponse response, User user) throws IOException {
 
 		if (!userService.addUser(user)) {
-			return new ResponseEntity(HttpStatus.BAD_REQUEST);
+			response.setStatus(400);
+			response.sendRedirect("static/register.html");
 		}
 
-		return new ResponseEntity(HttpStatus.CREATED);
+		response.setStatus(201);
+		response.sendRedirect("static/login.html");
 	}
 }
