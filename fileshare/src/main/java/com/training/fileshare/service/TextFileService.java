@@ -1,10 +1,15 @@
 package com.training.fileshare.service;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -47,5 +52,42 @@ public class TextFileService {
 		textFile.setAuthor(author);
 
 		return textFileRepo.save(textFile).getId();
+	}
+
+	public Resource download(Long id, User owner) {
+		TextFile document = textFileRepo.getReferenceById(id);
+
+		if (document == null) {
+			throw new IllegalArgumentException("File with id [" + id + "] does not exist");
+		}
+
+		if (!getAllUserFilesDetails(owner).contains(document)) {
+			throw new IllegalArgumentException(
+					"User [" + owner.getUsername() + "] has no access to file [id:" + document.getId() + "]");
+		}
+
+		File toDownload = fileManager.loadFormDisk(document.getFilename());
+		return getFileResource(toDownload);
+	}
+
+	private Resource getFileResource(File file) {
+
+		Resource resource = null;
+		try {
+			resource = new UrlResource(file.toURI());
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		}
+
+		return resource;
+	}
+
+	private List<TextFile> getAllUserFilesDetails(User user) {
+		List<TextFile> filesData = new ArrayList<>();
+
+		filesData.addAll(textFileRepo.findByAuthor(user));
+		filesData.addAll(textFileRepo.findByConsumer(user));
+
+		return filesData;
 	}
 }

@@ -1,5 +1,6 @@
 package com.training.fileshare.domain;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -16,10 +17,12 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import lombok.Data;
+import lombok.ToString;
 
 @Data
 @Entity
 @Table(name = "usr")
+@ToString(exclude = { "createdFiles", "recievedFiles" })
 public class User implements UserDetails {
 
 	private static final long serialVersionUID = -4557600846739433283L;
@@ -31,10 +34,10 @@ public class User implements UserDetails {
 	private String password;
 
 	@OneToMany(mappedBy = "author", fetch = FetchType.LAZY)
-	private List<TextFile> createdFiles;
+	private List<TextFile> createdFiles = new ArrayList<>();
 
 	@ManyToMany(mappedBy = "consumers", fetch = FetchType.LAZY)
-	private List<TextFile> recievedFiles;
+	private List<TextFile> recievedFiles = new ArrayList<>();
 
 	@Override
 	public String getUsername() {
