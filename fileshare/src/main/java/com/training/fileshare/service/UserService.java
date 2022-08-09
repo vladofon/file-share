@@ -1,5 +1,7 @@
 package com.training.fileshare.service;
 
+import java.util.Optional;
+
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -21,13 +23,13 @@ public class UserService implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-		User user = userRepo.findByEmail(email);
+		Optional<User> user = userRepo.findByEmail(email);
 
-		if (user == null) {
+		if (user.isEmpty()) {
 			throw new BadCredentialsException("User with email [" + email + "] not found!");
 		}
 
-		return user;
+		return user.get();
 	}
 
 	public boolean addUser(User user) {
@@ -37,9 +39,9 @@ public class UserService implements UserDetailsService {
 			return false;
 		}
 
-		User userFromDb = userRepo.findByEmail(user.getEmail());
+		Optional<User> userFromDb = userRepo.findByEmail(user.getEmail());
 
-		boolean alreadyRegistered = userFromDb != null;
+		boolean alreadyRegistered = userFromDb.isPresent();
 
 		if (alreadyRegistered) {
 			return false;

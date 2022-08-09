@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,18 +25,18 @@ import com.training.fileshare.service.TextFileService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/file")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class FileController {
 
 	private final TextFileService textFileService;
 
-	@GetMapping
+	@GetMapping("/file")
 	public List<TextFileDto> fileList(@AuthenticationPrincipal User user) {
 		return textFileService.getAllUserFiles(user);
 	}
 
-	@PostMapping
+	@PostMapping("/file")
 	public Map<String, String> saveFile(MultipartFile file, @AuthenticationPrincipal User author)
 			throws IllegalStateException, IOException {
 
@@ -45,13 +46,26 @@ public class FileController {
 		return result;
 	}
 
-	@GetMapping("{id}")
+	@GetMapping("/file/{id}")
 	public ResponseEntity downloadFile(@PathVariable Long id, @AuthenticationPrincipal User owner) {
 		Resource resource = textFileService.download(id, owner);
 
 		return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM)
 				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
 				.body(resource);
+	}
+
+	@PostMapping("/share")
+	public Map<String, String> shareFile(@RequestParam Long fileId, @RequestParam String email,
+			@AuthenticationPrincipal User author) {
+		textFileService.shareFile(fileId, email, author);
+
+		Map<String, String> shareInfo = new HashMap<>();
+		shareInfo.put("File id:", fileId.toString());
+		shareInfo.put("Reciever:", email);
+		shareInfo.put("Author:", author.getUsername());
+
+		return shareInfo;
 	}
 
 }

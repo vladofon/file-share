@@ -17,11 +17,13 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 @Data
 @Entity
 @Table(name = "usr")
+@EqualsAndHashCode(of = { "id" })
 @ToString(exclude = { "createdFiles", "recievedFiles" })
 public class User implements UserDetails {
 

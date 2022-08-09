@@ -12,7 +12,7 @@ public interface TextFileRepo extends JpaRepository<TextFile, Long> {
 
 	List<TextFile> findByAuthor(User author);
 
-	@Query("SELECT U.recievedFiles FROM com.training.fileshare.domain.User U WHERE U = :consumer")
+	@Query("FROM TextFile F JOIN F.consumers FC WHERE FC = :consumer")
 	List<TextFile> findByConsumer(User consumer);
 
 }

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -17,6 +18,7 @@ import com.training.fileshare.domain.TextFile;
 import com.training.fileshare.domain.User;
 import com.training.fileshare.dto.TextFileDto;
 import com.training.fileshare.repo.TextFileRepo;
+import com.training.fileshare.repo.UserRepo;
 import com.training.fileshare.service.mapper.TextFileDtoMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 public class TextFileService {
 
 	private final TextFileRepo textFileRepo;
+	private final UserRepo userRepo;
 	private final TextFileDtoMapper mapper;
 	private final FileManager fileManager;
 
@@ -55,19 +58,42 @@ public class TextFileService {
 	}
 
 	public Resource download(Long id, User owner) {
-		TextFile document = textFileRepo.getReferenceById(id);
+		Optional<TextFile> document = textFileRepo.findById(id);
 
-		if (document == null) {
+		if (document.isEmpty()) {
 			throw new IllegalArgumentException("File with id [" + id + "] does not exist");
 		}
 
 		if (!getAllUserFilesDetails(owner).contains(document)) {
 			throw new IllegalArgumentException(
-					"User [" + owner.getUsername() + "] has no access to file [id:" + document.getId() + "]");
+					"User [" + owner.getUsername() + "] has no access to file [id:" + document.get().getId() + "]");
 		}
 
-		File toDownload = fileManager.loadFormDisk(document.getFilename());
+		File toDownload = fileManager.loadFormDisk(document.get().getFilename());
 		return getFileResource(toDownload);
+	}
+
+	public void shareFile(Long id, String email, User author) {
+		Optional<TextFile> document = textFileRepo.findById(id);
+		Optional<User> user = userRepo.findByEmail(email);
+
+		if (document.isEmpty()) {
+			throw new IllegalArgumentException("File to share not found [id:" + id + "]");
+		}
+
+		if (user.isEmpty()) {
+			throw new IllegalArgumentException("No User found for file sharing [email:" + email + "]");
+		}
+
+		if (!document.get().getAuthor().equals(author)) {
+			throw new IllegalArgumentException("User [email:" + author.getUsername() + "] is not File owner [email:"
+					+ document.get().getAuthor().getUsername() + "]");
+		}
+
+		// user.get().getRecievedFiles().add(document.get());
+		document.get().getConsumers().add(user.get());
+		textFileRepo.save(document.get());
+		// userRepo.save(user.get());
 	}
 
 	private Resource getFileResource(File file) {
