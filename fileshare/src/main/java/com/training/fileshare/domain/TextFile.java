@@ -15,10 +15,12 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 @Data
 @Entity
+@EqualsAndHashCode(of = { "id" })
 @ToString(exclude = "consumers")
 public class TextFile {
 

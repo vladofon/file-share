@@ -64,7 +64,7 @@ public class TextFileService {
 			throw new IllegalArgumentException("File with id [" + id + "] does not exist");
 		}
 
-		if (!getAllUserFilesDetails(owner).contains(document)) {
+		if (!getAllUserFilesDetails(owner).contains(document.get())) {
 			throw new IllegalArgumentException(
 					"User [" + owner.getUsername() + "] has no access to file [id:" + document.get().getId() + "]");
 		}
